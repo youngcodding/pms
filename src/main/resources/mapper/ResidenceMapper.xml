@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yn.pms.dao.IResidenceDAO">
+    <select id="selectDeveloperByCid" resultType="Developer" parameterType="int">
+        select * from t_developer where id= #{cid}
+    </select>
+
+    <insert id="insertCommunity" parameterType="Community">
+        insert into  t_community(cCompanyName,communityNum,residentialName,coverArea,constructionArea,greenArea,roadArea,buildCount,principal,cAddr,developer_id)
+        values(#{cCompanyName},#{communityNum},#{residentialName},#{coverArea},#{constructionArea},#{greenArea},#{roadArea},#{buildCount},#{principal},#{cAddr},#{developer_id})
+    </insert>
+
+    <insert id="insertBuild" parameterType="Build">
+        insert into t_build(buildNum,buildName,floorCount,community_id)
+          values(#{buildNum},#{buildName},#{floorCount},#{community_id})
+    </insert>
+
+    <insert id="insertFloor" parameterType="Floor">
+        insert into t_floor(floorNum,floorName,floorArea,publicArea,roomCount,build_id)
+          values(#{floorNum},#{floorName},#{floorArea},#{publicArea},#{roomCount},#{build_id})
+    </insert>
+
+    <insert id="insertRoom" parameterType="Room">
+        insert into t_room(property,roomName,roomNum,houseType,roomArea,useArea,toward,decoration,statusTenant,floor_id,developer_id,properietor_id)
+          values(#{property},#{roomName},#{roomNum},#{houseType},#{roomArea},#{useArea},#{toward},#{decoration},#{statusTenant},#{floor_id},#{developer_id},#{properietor_id})
+    </insert>
+
+    <select id="selectRoomCount"  resultType="int">
+        select sum(roomCount) from t_floor where build_id=#{bid}
+    </select>
+
+    <select id="selectRentedOrSoldNum"  resultType="int">
+        select count(*) from t_room where floor_id in(select id from t_floor where build_id=#{bid}) and statusTenant=#{status}
+    </select>
+</mapper>

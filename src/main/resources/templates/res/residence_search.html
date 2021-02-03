@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html    xmlns:th="http://www.thymeleaf.org">
+  <head>
+   <base  href="/">
+	<title>房产查询</title>
+	<!-- 引入zTree相关js -->
+	<link rel="stylesheet" href="js/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+	<link rel="stylesheet" href="js/ztree/css/demo.css" type="text/css">
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" src="js/ztree/js/jquery.ztree.core.js"></script>
+	<!-- 引入layer.js插件 -->
+	<script src="js/plugins/layer2.4/layer.js"></script>
+    <script type="text/javascript">
+    //localStorage 是html5提供的一个对象，替代了之前浏览器的cookie实现的部分功能
+ $(function(){
+		var storage = window.localStorage;//保存信息，只有关闭浏览器才会消失，替代cookie
+    	//页面加载完毕就调用函数
+		getCommunity();
+    	//小区编号（在函数的外部声明就是一个全局变量）
+    	var cid;
+    	//开发商的编号
+    	var  did;
+    	function getCommunity(){
+    		$.get("contract/community",function(data){
+    			//alert(JSON.stringify(data))
+    			//将小区的信息保存到 window.localStorage 对象中
+    			//保存的时候是将json对象转成成json格式的字符串了
+    			//这里使用JSON是JavaScript提供的一个对象    ，stringify(data) 将一个json对象转换成json格式的字符串
+    			storage.setItem("communities",JSON.stringify(data));
+    			var options = "<option value='-1'>请选择小区</option>";
+    			//遍历data数组
+    			//data :表示需要遍历的数组
+    			//function:表示使用该函数进行数组的遍历
+    			//index:遍历的索引，每次都会自动增加1
+    			//community：将每次遍历到的对象保存到该变量中
+    			$.each(data,function(index,community){
+    				options += "<option value="+community.id+">"+community.residentialName+"</option>";
+    				//$("#Community").appnend()
+    			});
+    			$("#Community").html(options);
+    		},"json")
+    	}
+    	//为小区下拉列表绑定改变事件
+    	$("#Community").change(getTree);
+    	function getTree(){
+    		//取得选择的小区的编号
+    		var cid=$(this).val();
+    		var arr = []; //该数组保存的是一个小区的信息和这个小区的开发商的信息
+    		var communities = storage.getItem("communities");
+			//communities 此时是一个JSON格式的字符串，需要将这个字符串转换成json对象
+			//jQuery.parseJSON（）将一个json格式的字符串转换成json对象
+			var  objs=jQuery.parseJSON(communities);
+			for(var i=0;i<objs.length;i++){
+				if(objs[i].id==cid){
+					did=objs[i].developer_id;//保存该小区开发商的编号
+					//将小区的信息保存到数组中
+					arr.push(objs[i].residentialName);
+					arr.push(objs[i].communityNum);
+					arr.push(objs[i].cCompanyName);
+					arr.push(objs[i].principal);
+					arr.push(objs[i].buildCount);
+					arr.push(objs[i].constructionArea);
+					arr.push(objs[i].greenArea);
+					arr.push(objs[i].roadArea);
+					arr.push(objs[i].cAddr);
+				}
+			 }
+			 // 根据小区的编号查询出对应的开发商信息
+    		 $.get("residence/getDeveloper?id="+did,function(data){
+    		      	console.log("开发商："+data)
+    				arr.push(data.developerName);
+					arr.push(data.dCompanyName);
+					arr.push(data.lawPerson);
+					arr.push(data.linkman);
+					arr.push(data.phone);
+					arr.push(data.dAddr);
+					arr.push(data.remark);
+    		},"json");
+    		//弹出小区信息和对应的开发商信息
+      		layer.open({
+    		      type: 2,
+    		      title: '小区和开发商信息',
+    		      maxmin: true,
+    		      shadeClose: false, //点击遮罩关闭层
+    		      area : ['90%' , '85%'],
+    		      content: "res/community_info.html",
+    		      success: function(layero, index){
+    		    	  //取得弹出框的body对象
+    		    	   var body = layer.getChildFrame('body',index);
+    		           // var iframeWin = window[layero.find('iframe')[0]['name']];//得到iframe页的body内容
+    		           //每个input框在页面中的顺序是和 arr数组中的元素对应的
+    		           //body.find('input')：取得弹出窗口中的jso
+    		            var inputList = body.find('input');
+    		           // console.log(inputList);
+    		            for(var j = 0; j< inputList.length; j++){
+    		                $(inputList[j]).val(arr[j]);
+    		            } 
+    		      }
+    			});
+    		 /**-------------上面部分的内容是实现小区和对应的开发商的基本信息显示----------------------**/
+ 		     /**-------------下面部分是实现节点树生成--------------------------------------------**/
+			 //将生成节点数的代码放到取得小区信息的get请求中是为了 能使用小区的编号查询出对应的楼栋节点，而不是查询所有楼栋节点	
+ 			 var setting = {  //异步加载数据
+		    		async: { 
+		    			enable: true,  
+		    			url:getAsyncUrl,   //访问数据的路径信息   ，会自动调用getAsyncUrl（）取得加载数据的路劲信息
+		    			autoParam:["id"],  //当前节点的id值  
+		    			dataFilter: filter  //预处理数据，生成节点时候会自动调用filter（）
+		    		},
+		    		view: {
+		    				//支持解析html格式的值
+		    				nameIsHTML: true,
+		    		},
+		    		callback: {//为生成节点绑定单机事件，绑定zTreeOnClick()函数
+		    				onClick: zTreeOnClick
+		    		}
+		    		};
+		    		//点击回调函数
+		    		function zTreeOnClick(event, treeId, treeNode){
+		    			var arr = [];
+		    			if(treeNode.level==2){//表示房间节点，
+							//把弹窗需要的信息结果放到一个数组里
+							arr.push(treeNode.name);
+							arr.push(treeNode.roomNum);
+							arr.push(treeNode.houseType);
+							arr.push(treeNode.toward);
+							arr.push(treeNode.decoration);
+							arr.push(treeNode.property);
+							arr.push(treeNode.roomArea);
+							arr.push(treeNode.useArea);
+							arr.push(treeNode.floor_id);
+							arr.push(treeNode.developer_id);
+							arr.push(treeNode.statusTenant);
+							//当房间信息保存到arr数组之后 弹出一个窗口显示房间的信息
+		    				layer.open({
+				    		      type: 2,
+				    		      title: '房间信息',
+				    		      maxmin: true,
+				    		      shadeClose: false, //点击遮罩关闭层
+				    		      area : ['90%' , '85%'],
+				    		      content: "res/room_info.html",
+				    		      success: function(layero, index){
+				    		    	  //取得模态窗口的body对象
+				    		    	    var body = layer.getChildFrame('body',index);
+				    		          //  var iframeWin = window[layero.find('iframe')[0]['name']];//得到iframe页的body内容
+				    		            var inputList = body.find('input');
+				    		            console.log(inputList);
+				    		            for(var j = 0; j< inputList.length; j++){
+				    		                $(inputList[j]).val(arr[j]);
+				    		            } 
+				    		      }
+				    		});
+						}else if(treeNode.level==1){//显示的是楼层信息
+							arr = [];//清空之前的数据之后保存楼层信息
+							//把弹窗需要的信息结果放到一个数组里
+							arr.push(treeNode.name);
+							arr.push(treeNode.floorNum);
+							arr.push(treeNode.floorArea);
+							arr.push(treeNode.publicArea);
+							arr.push(treeNode.roomCount);
+							arr.push(treeNode.build_id);
+							layer.open({
+				    		      type: 2,
+				    		      title: '楼层信息',
+				    		      maxmin: true,
+				    		      shadeClose: false, //点击遮罩关闭层
+				    		      area : ['90%' , '85%'],
+				    		      content: "res/floor_info.html",
+				    		      success: function(layero, index){
+				    		    	  //取得弹出框的body对象
+				    		    	    var body = layer.getChildFrame('body',index);//建立父子联系
+				    		            //var iframeWin = window[layero.find('iframe')[0]['name']];//得到iframe页的body内容
+				    		            var inputList = body.find('input');
+				    		            console.log(inputList);
+				    		            for(var j = 0; j< inputList.length; j++){
+				    		                $(inputList[j]).val(arr[j]);
+				    		            } 
+				    		      }
+		    				});
+						}else if(treeNode.level==0){//展示楼栋信息
+							arr = [];
+							//把弹窗需要的信息结果放到一个数组里
+							arr.push(treeNode.name);
+							arr.push(treeNode.buildNum);
+							arr.push(treeNode.floorCount);
+							arr.push(treeNode.community_id);
+							layer.open({
+				    		      type: 2,
+				    		      title: '楼栋信息',
+				    		      maxmin: true,
+				    		      shadeClose: false, //点击遮罩关闭层
+				    		      area : ['90%' , '85%'],
+				    		      content: "res/build_info.html",
+				    		      success: function(layero, index){
+				    		    	   //取得弹出框的body对象
+				    		    	    var body = layer.getChildFrame('body',index);//建立父子联系
+				    		           // var iframeWin = window[layero.find('iframe')[0]['name']];//得到iframe页的body内容
+				    		            var inputList = body.find('input');
+				    		            console.log(inputList);
+				    		            for(var j = 0; j< inputList.length; j++){
+				    		                $(inputList[j]).val(arr[j]);
+				    		            } 
+				    		      }
+		    				});
+						}	
+		    		}
+		    		//预处理函数,生成节点的时候会自动调用该函数,主要的作用是判断节点是否使用文件夹的样式显示
+		    		function filter(treeId, currentNode, childNodes) {
+		    			if (!childNodes) return null;
+		    			if(undefined == currentNode || currentNode.level == 0){
+		    			    for (var i=0; i<childNodes.length; i++) {
+		    				   childNodes[i].isParent = true;//将子节点的样式设置为文件夹的样式
+		    				}
+		    			}
+		    			return childNodes;
+		    		}
+		    		$(document).ready(function(){
+		    			$.fn.zTree.init($("#zTree"), setting);
+		    		});
+		    		//拼接不同的异步url参数
+		    		function getAsyncUrl(treeId, treeNode) {
+		    			var url  = "contract/build?id="+cid;
+		    			if(undefined != treeNode){
+		    				if(treeNode.level == 0){
+		    					url = "contract/floor";
+		    				}else if(treeNode.level == 1){
+		    					url = "contract/room";
+		    				}
+		    			}
+		    			return url;
+		    		}
+ 	   }
+ })
+ </script>
+</head>
+<body>
+	  <div class="content_wrap">
+		<div class="zzTreeBackground left">
+			<!-- 小区的下拉选择框 -->
+			&nbsp &nbsp请选择小区：<span> 
+			<select id="Community">
+				<option value = "-1">请选择小区</option> 
+			</select></span> 
+			<!-- 对应的树状信息 -->
+			<ul id="zTree" class="ztree"></ul>
+		</div>
+		<div class="right">
+		<ul id="info" class="info">
+		</ul>
+		</div>
+	</div>
+</body>
+</html>

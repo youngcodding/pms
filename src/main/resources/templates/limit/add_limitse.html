@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html    xmlns:th="http://www.thymeleaf.org">
+<head>
+<base  href="/SxtPms/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>H+ 后台主题UI框架 - 基本表单</title>
+<meta name="keywords" content="H+后台主题,后台bootstrap框架,会员中心主题,后台HTML,响应式后台">
+<meta name="description"
+	content="H+是一个完全响应式，基于Bootstrap3最新版本开发的扁平化主题，她采用了主流的左右两栏式布局，使用了Html5+CSS3等现代技术">
+<link rel="shortcut icon" href="favicon.ico">
+<link href="/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+<link href="/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+<link href="/css/plugins/iCheck/custom.css" rel="stylesheet">
+<link href="/css/animate.css" rel="stylesheet">
+<link href="/css/style.css?v=4.1.0" rel="stylesheet">
+  <script src="/js/jquery.min.js?v=2.1.4"></script>
+    <script src="/js/jquery.form.js"></script>
+    <script src="/js/bootstrap.min.js?v=3.3.6"></script>
+    <script src="/js/content.min.js?v=1.0.0"></script>
+    <script src="/js/plugins/iCheck/icheck.min.js"></script>
+    <script src="/js/plugins/layer2.4/layer.js"></script>
+	<!-- 全局js -->
+	<script src="/js/jquery.min.js?v=2.1.4"></script>
+	<script src="/js/bootstrap.min.js?v=3.3.6"></script>
+	<!-- 引入 Jquery.validate.js 表单验证框架 -->
+	<script src="/js/jquery.validate.min.js"></script>
+	<script src="/js/messages_zh.min.js"></script>
+	<!-- 自定义js -->
+	<script src="/js/content.js?v=1.0.0"></script>
+	<!-- iCheck -->
+	<script src="/js/plugins/iCheck/icheck.min.js"></script>
+</head>
+<body class="gray-bg">
+	<div class="wrapper wrapper-content animated fadeInRight">
+		<div class="row">
+			<div class="col-sm-7">
+				<div class="ibox float-e-margins">
+					<div class="ibox-content">
+						<div class="row">
+							<form role="form" class="form-horizontal" id="limit_form">
+								<div class="col-sm-8">
+								<!-- 
+								  ${param} 可以取得请求地址中的参数
+								  ${param.uid} 可以取得key=uid的参数的值
+								-->
+									<input type="hidden" name="uid" th:value="${uid}">
+									<div class="col-sm-12">
+										<div class="form-group">
+											<label class="col-sm-3 control-label">用户名：</label>
+											<div class="col-sm-7">
+												<input type="text" th:value="${uname}" readonly="readonly" id="limitName"  name="limitName"
+													class="form-control" >
+													<span	class="help-block m-b-none" id=""></span>
+											</div>
+										</div>
+										<div class="col-sm-3"></div>
+										<div class="col-sm-9">
+											<input type="checkbox"  id="addUserLimit"  name="addUserLimit" value="1" class="col-sm-1">
+											<span class="col-sm-9" >添加用户功能</span>
+										</div>
+									</div>
+									<p></p>
+										<p></p>
+									<div class="col-sm-12">
+										<div class="col-sm-3"></div>
+										<div class="col-sm-9">
+											<input type="checkbox"  id="updateUserLimit" name="updateUserLimit" value="1" class="col-sm-1">
+											<span class="col-sm-9">操作用户功能</span>
+										</div>
+									</div>
+										<p></p>
+									<div class="col-sm-12">
+										<div class="col-sm-3"></div>
+										<div class="col-sm-9">
+											<input type="checkbox"  id="addowenerLimit" name="addowenerLimit" value="1" class="col-sm-1">
+											<span class="col-sm-9">添加业主功能</span>
+										</div>
+									</div>
+									<p></p>
+									<div class="col-sm-12">
+										<div class="col-sm-3"></div>
+										<div class="col-sm-9">
+											<input type="checkbox"  id="updateOwnerLimit" name="updateOwnerLimit"  value="1" class="col-sm-1">
+											<span class="col-sm-9">操作业主功能</span>
+										</div>
+									</div>
+									<div class="col-sm-12" style="height:30px"></div>
+									<div class="form-group col-sm-12" >
+										<div class="col-sm-6" >	</div>	
+	                                	<div class="col-sm-6">
+	                                    	<button class="btn btn-primary" type="submit">保存内容</button>
+	                                   		<button class="btn btn-white" type="submit">取消</button>
+	                                	</div>
+                          	 		</div>	
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+<script type="text/javascript" th:inline="javascript">
+        //${param.addUserLimit} 使用el表达式取得地址中的addUserLimit的参数
+		if([[${limits.addUserLimit eq 1}]]){
+			$("#addUserLimit").attr("checked",true);
+		}else{
+			$("#addUserLimit").attr("checked",false);
+		}
+		if([[${limits.updateUserLimit eq 1}]]){
+			$("#updateUserLimit").attr("checked",true);
+		}else{
+			$("#updateUserLimit").attr("checked",false);
+		}
+		if([[${limits.addowenerLimit eq 1}]]){
+			$("#addowenerLimit").attr("checked",true);
+		}else{
+			$("#addowenerLimit").attr("checked",false);
+		}
+		if([[${limits.updateOwnerLimit eq 1}]]){
+			$("#updateOwnerLimit").attr("checked",true);
+		}else{
+			$("#updateOwnerLimit").attr("checked",false);
+		}
+		//var addowenerLimit = ${param.addowenerLimit};
+		$(function() {
+			$("#limit_form").validate({
+				submitHandler : function() {
+					//序列化表单数据
+					//如果是复选框  则只有选中状态的能被序列化
+					var limitsData = $("#limit_form").serialize();
+					//使用ajax 向后台提交数据
+					$.post("/limits/update",limitsData,function(data){
+						if(data){
+							//parent 表示当前窗口的父级窗口对象
+							parent.layer.open({  //layer.js插件打开窗口
+								type : 1,
+								skin : 'layui-layer-molv', //样式类名
+								closeBtn : false, //不显示关闭按钮
+								shift : 1,//动画效果
+								shadeClose : true, //开启遮罩关闭
+								content : '权限修改成功',
+								time:1000,////3秒关闭（如果不配置，默认是3秒）
+								end:function(){
+									//获取父窗口的弹出层  的层级
+									var index = parent.layer.getFrameIndex(window.name);
+									parent.layer.close(index);
+								}
+						   });
+						}
+					});
+				}
+			});
+		})
+	</script>
+</body>
+</html>

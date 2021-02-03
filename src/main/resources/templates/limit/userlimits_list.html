@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html    xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>H+ 后台主题UI框架 - 数据表格</title>
+	<meta name="keywords" content="H+后台主题,后台bootstrap框架,会员中心主题,后台HTML,响应式后台">
+	<meta name="description"
+		content="H+是一个完全响应式，基于Bootstrap3最新版本开发的扁平化主题，她采用了主流的左右两栏式布局，使用了Html5+CSS3等现代技术">
+		<!-- 全局js -->
+	<script src="js/jquery.min.js?v=2.1.4" th:src="@{/js/jquery.min.js?v=2.1.4}"></script>
+	<script src="js/plugins/jeditable/jquery.jeditable.js" th:src="@{/js/plugins/jeditable/jquery.jeditable.js}"></script>
+	<script src="js/bootstrap.min.js?v=3.3.6" th:src="@{/js/bootstrap.min.js?v=3.3.6}"></script>
+	<link rel="shortcut icon" href="/favicon.ico">
+	<link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet" th:href="@{/css/bootstrap.min.css?v=3.3.6}">
+	<link href="css/font-awesome.css?v=4.4.0" rel="stylesheet" th:href="@{/css/font-awesome.css?v=4.4.0}">
+	<!-- Data Tables -->
+	<link href="css/plugins/dataTables/dataTables.bootstrap.css"
+		rel="stylesheet" th:href="@{/css/plugins/dataTables/dataTables.bootstrap.css}">
+	<link href="css/animate.css" rel="stylesheet" th:href="@{/css/animate.css}">
+	<link href="css/style.css?v=4.1.0" rel="stylesheet" th:href="@{/css/style.css?v=4.1.0}">
+	<!-- Data Tables -->
+	<script src="js/plugins/dataTables/jquery.dataTables.js" th:src="@{/js/plugins/dataTables/jquery.dataTables.js}"></script>
+	<script src="js/plugins/dataTables/dataTables.bootstrap.js" th:src="@{/js/plugins/dataTables/dataTables.bootstrap.js}"></script>
+	<!-- 弹框插件 -->
+	<script src="js/plugins/layer/layer.min.js" th:src="@{/js/plugins/layer/layer.min.js}"></script>
+	<!-- 表单验证框架 -->
+	<script src="js/jquery.validate.min.js" th:src="@{/js/jquery.validate.min.js}"></script>
+	<script src="js/messages_zh.min.js" th:src="@{/js/messages_zh.min.js}"></script>
+	<!-- 日历插件 -->
+	<script src="js/plugins/layer/laydate/laydate.js" th:src="@{/js/plugins/layer/laydate/laydate.js}"></script>
+	<!-- 自定义js -->
+	<script src="js/content.js?v=1.0.0" th:src="@{/js/content.js?v=1.0.0}"></script>
+	<script src="js/bootstrap-paginator.js" th:src="@{/js/bootstrap-paginator.js}"></script>
+	<script type="text/javascript" th:inline="javascript">
+	   var pageSize=[[${map.ls}]];
+		$(function(){
+			$("#pagination").bootstrapPaginator({
+				currentPage : [[${map.cp}]],//当前页
+				totalPages : [[${map.pageSize}]],//总页数
+				size : "normal",
+				bootstrapMajorVersion : 3,
+				alignment : "right",
+				numberOfPages : 5,
+				itemTexts : function(type, page, current) {
+					switch (type) {
+					case "first":
+						return "首页";
+					case "prev":
+						return "上一页";
+					case "next":
+						return "下一页";
+					case "last":
+						return "尾页";
+					case "page":
+						return page;
+					}
+				},onPageClicked: function (event, originalEvent, type, page) {
+					window.location.href="/sysuser/list?flag=limits&cp="+page+"&ls="+pageSize+"&kw="+$("#searchOntime").val();
+				}
+			});
+			//为每页多少条的下拉框绑定一个change事件
+			$("#pageSize").change(function(){
+				window.location.href="/sysuser/list?flag=limits&cp=1&ls="
+						+this.value+"&kw="+$("#searchOntime").val();
+			});
+			//监听搜搜框的键盘按下事件:如果用户按的是回车键,就触发向后台发送请求的操作
+			$("#searchOntime").keyup(function(event){
+				//event是js事件编程种的一个内置对象,可以获取当前用户按下键盘任意键的所有信息
+				//键盘的每一个数字都是对应的ASCII码,13是Enter 键盘
+				if(event.keyCode == 13){
+					window.location.href="/sysuser/list?flag=limits&kw="+$(this).val();
+				}
+		});
+	    //绑定修改权限的函数
+		$("a[class='btn btn-danger']").click(updateUserLimits);
+	    //修改权限的函数
+		 function updateUserLimits(){
+	    	//取得用户的编号
+			var uid = $(this).attr("data-id");
+	    	//取得用户名称
+			var uname = $(this).attr("data-uname");
+			//根据当前uid查询出对应的权限
+			//data是权限对象（Permission）
+		/*	$.post("permission/list",{"uid":id},function(data){
+	 			var addUserLimit = data.addUserLimit;
+	 			var updateUserLimit = data.updateUserLimit;
+				var addowenerLimit = data.addowenerLimit;
+	 			var updateOwnerLimit = data.updateOwnerLimit;*/
+	 	    //layer.open 根据type不同，类型也就不一样,有五种类型：0（信息框，默认）1（页面层）2（iframe层）3（加载层）
+			layer.open({   //使用layer.js插件的方法 打开一个模态窗口
+			      type: 2,
+			      title: '修改用户权限',
+			      maxmin: true,
+			      shadeClose: false, //点击遮罩关闭层
+			      area : ['30%' , '90%'],
+			      //要在模态框口中打开的内容，需要打开的页面是 add_limitse.html
+			      content: "/limits/getById?uid="+uid+"&uname="+uname
+			    });
+       /*   },"json");*/
+        };
+	  })
+	</script>
+</head>
+<body class="gray-bg">
+			<div class="col-sm-8">
+				<div class="ibox float-e-margins">
+					<div class="ibox-title">
+						<h5>
+							用户权限查看与修改
+						</h5>
+					</div>
+					<div class="ibox-content">
+				<div id="DataTables_Table_0_wrapper"
+					class="dataTables_wrapper form-inline" role="grid">
+					<div class="row">
+						<div class="col-md-6">
+							<div class="dataTables_length" id="DataTables_Table_0_length">
+								<label>每页 
+								<select id="pageSize"  class="form-control input-sm">
+										<option value="1" th:selected="${map.ls eq  1 ?true:false}">1</option>
+										<option value="2" th:selected="${map.ls eq  2 ?true:false}">2</option>
+										<option value="3" th:selected="${map.ls eq  3 ?true:false}">3</option>
+										<option value="5" th:selected="${map.ls eq  5 ?true:false}">5</option>
+										<option value="10" th:selected="${map.ls eq  10 ?true:false}">10</option>
+								</select> 条记录
+								</label>
+							</div>
+						</div>
+						<div class="col-sm-6">
+							<div id="DataTables_Table_0_filter" class="dataTables_filter">
+								<label>查找：<input class="form-control input-sm" th:value="${map.kw}"
+									id= "searchOntime" type="search" ></label>
+							</div>
+						</div>
+<!-- 						<span id="uname">ddsdds</span> -->
+					</div>
+
+						<table
+						class="table table-striped table-bordered table-hover dataTables-example dataTable"
+						id="DataTables_Table_0" aria-describedby="DataTables_Table_0_info">
+						<thead>
+							<tr role="row">
+								<th class="sorting_asc" tabindex="0" >编号</th>
+								<th class="sorting_asc" tabindex="0" >账号</th>
+								<th class="sorting_asc" tabindex="0" >昵称</th>
+								<th class="sorting_asc" tabindex="0" >电话</th>
+								<th class="sorting_asc" tabindex="0" >注册日期</th>
+								<th class="sorting_asc" tabindex="0" >操作</th>
+							</tr>
+						</thead>
+						<tbody>
+
+							<tr th:each="user:${map.userList}" id="tr_${user.uid}" class="gradeA odd">
+								<td class="" th:text="${user.uid}"></td>
+								<td class="" th:text="${user.name}"></td>
+								<td class="" th:text="${user.nickname}"></td>
+								<td class="" th:text="${user.phone}"></td>
+								<td class="" th:text="${#dates.format(user.regtime,'yyyy-MM-dd')}"></td>
+									<td class="">
+										<a class="btn btn-danger" data-toggle="modal"    th:data-id="${user.uid}"
+											th:data-uname="${user.name}">修改用户权限
+										</a>
+									</td>
+								</tr>
+						</tbody>
+					</table>
+					<div class="row">
+						<div class="col-sm-6">
+							<div class="dataTables_info" id="DataTables_Table_0_info"
+								role="alert" aria-live="polite" aria-relevant="all">
+								第<span th:text="${map.cp}"></span>页，共<span th:text="${map.pageSize}"></span>页，共<span id ="totalcount" th:text="${map.count}"></span>条
+							</div>
+						</div>
+						<div class="col-sm-6">
+							<div class="dataTables_paginate paging_simple_numbers"
+								id="DataTables_Table_0_paginate">
+								<ul id="pagination"></ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

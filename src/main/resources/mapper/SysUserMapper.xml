@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yn.pms.dao.ISysUserDAO">
+
+    <select id="daoFindById" parameterType="int" resultType="sysUser">
+         select uid,name,nickname,delstatus,pwd,phone,email,qq,regtime,img from t_sysuser where uid=#{uid}
+    </select>
+    <!--验证用户名和密码-->
+   <select id="selectLogin" resultType="sysUser" >
+       select uid,name,nickname,phone from t_sysuser where  nickname=#{name} and pwd=#{pwd}
+   </select>
+
+    <!--验证昵称是否被占用-->
+    <select id="selectByNickName" resultType="sysuser">
+        select uid,name,nickname,phone from t_sysuser where nickname=#{nickname} and uid!=#{uid}
+    </select>
+
+    <!--新增用户-->
+    <insert id="daoCreate" parameterType="sysUser" useGeneratedKeys="true" keyProperty="uid" keyColumn="uid">
+      <!--获取自增长的主键值-->
+       <!-- <selectKey keyColumn="uid" keyProperty="uid" resultType="int">
+            select last_insert_id();
+        </selectKey>-->
+        insert into t_sysuser(name,nickname,delstatus,pwd,phone,email,qq,regtime,img) values(
+        #{name},#{nickname},#{delstatus},#{pwd},#{phone},#{email},#{qq},#{regtime},#{img})
+    </insert>
+
+    <!--实现模糊分页查询-->
+    <select id="daoFindSplit" resultType="sysuser">
+        select uid,name,nickname,delstatus,pwd,phone,email,qq,regtime,img from t_sysuser
+        where name like #{kw} or nickname like #{kw}
+       limit #{start},#{end}
+    </select>
+    <!--查询总记录数-->
+    <select id="daoCount" parameterType="string" resultType="int">
+
+        select count(*) from t_sysuser where name like #{kw} or nickname like #{kw}
+    </select>
+
+    <delete id="daoRemoveById" parameterType="int">
+        delete from t_sysuser where uid=#{id} and delstatus=1
+    </delete>
+
+    <update id="daoUpdate" parameterType="sysuser">
+        update t_sysuser set name=#{name},nickname=#{nickname},pwd=#{pwd},phone=#{phone},email=#{email},
+        qq=#{qq},regtime=#{regtime},img=#{img} where uid=#{uid}
+
+    </update>
+</mapper>

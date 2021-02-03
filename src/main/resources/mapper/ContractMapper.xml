@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yn.pms.dao.IContractDAO">
+
+    <select id="selectCommunities" resultType="Community">
+        select * from t_community
+    </select>
+
+    <select id="selectBuilds" resultType="Build" parameterType="int">
+        select * from t_build where community_id =#{cid}
+    </select>
+
+    <select id="selectFloors" parameterType="int" resultType="Floor">
+        select * from t_floor where build_id=#{bid}
+    </select>
+
+    <select id="selectRooms" resultType="room" parameterType="int">
+        select * from t_room where floor_id=#{fid}
+    </select>
+
+    <update id="updateRoomStatus" >
+        update t_room set statusTenant=#{status} where id=#{rid}
+    </update>
+
+    <insert id="daoCreate" parameterType="Contract" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into t_constract(tenant_id,pcharge_id,purpose_id,signtime,starttime,endtime,monthfee,deposit, remarks,room_id)
+        values(#{tenant_id},#{pcharge_id},#{purpose_id},#{signtime},#{starttime},#{endtime},#{monthfee},#{deposit},#{remarks},#{room_id})
+    </insert>
+</mapper>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yn.pms.dao.ITenantDAO">
+
+    <insert id="daoCreate" parameterType="tenant" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        insert into t_tenant(companyname,phone,managername,identity,identitypositive,identitynegative,licensepath) 
+        values(#{companyname},#{phone},#{managername},#{identity},#{identitypositive},#{identitynegative},#{licensepath}) 
+    </insert>
+    
+    <update id="daoUpdate" parameterType="tenant">
+        update t_tenant set companyname=#{companyname},phone=#{phone},managername=#{managername},identity=#{identity},
+        identitypositive=#{identitypositive},identitynegative=#{identitynegative},licensepath=#{licensepath} where 
+        id=#{id}
+    </update>
+    
+    <delete id="daoRemoveById" parameterType="int">
+        delete from t_tenant where id=#{id}
+    </delete>
+    
+    <select id="daoFindById" parameterType="int" resultType="tenant">
+        select id,companyname,phone,managername,identity,identitypositive,identitynegative,licensepath
+        from t_tenant where id=#{id} 
+    </select>
+    
+    <select id="daoFindSplit" resultType="tenant">
+        select id,companyname,phone,managername,identity,identitypositive,identitynegative,licensepath
+        from t_tenant
+        where companyname like #{kw}  limit #{start},#{end}
+    </select>
+
+    <select id="daoCount" resultType="int">
+        select count(id) from t_tenant where companyname like #{kw}
+    </select>
+</mapper>

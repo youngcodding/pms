@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yn.pms.dao.IInspectionDAO">
+    <select id="selectInspectionList" resultType="Inspection" parameterType="int" >
+        select * from t_inspection where room_id=#{rid}
+    </select>
+    
+    <insert id="daoCreate" parameterType="Inspection" useGeneratedKeys="true" keyColumn="id" keyProperty="id" >
+        insert into t_inspection(itemName,acceptDate,confirmDate,accept,personnel,ownerOpinion,personnelOpinion,remake,room_id)
+          values(#{itemName},#{acceptDate},#{confirmDate},#{accept},#{personnel},#{ownerOpinion},#{personnelOpinion},#{remake},#{room_id})
+    </insert>
+
+    <delete id="daoRemoveById" parameterType="int">
+        delete from t_inspection where id=#{id}
+    </delete>
+</mapper>

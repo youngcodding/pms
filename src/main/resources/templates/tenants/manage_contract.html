@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html    xmlns:th="http://www.thymeleaf.org">
+  <head>
+	<link rel="stylesheet" href="/js/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+	<link rel="stylesheet" href="/js/ztree/css/demo.css" type="text/css">
+	<script type="text/javascript" src="/js/jquery.min.js"></script>
+	<script type="text/javascript" src="/js/ztree/js/jquery.ztree.core.js"></script>
+    <!-- 引入layer.js插件 -->
+	<script src="/js/plugins/layer2.4/layer.js"></script>
+	<script type="text/javascript">
+	   //当html加载完毕之后立刻执行的代码，而且值执行一次
+	   $(document).ready(function(){
+		   //在指定的ul中生成节点树
+		  $.fn.zTree.init($("#treeDemo"), setting);
+	   });
+	    //节点树的基本配置
+		var setting = {
+			async: {//配置异步加载数据的配置
+				enable: true,  //开启异步加载（第一次进入页面的时候就自动加载数据）
+				url:getAsyncUrl, //调用 getAsyncUrl（）方法取得要加载数据的路径信息
+				autoParam:["id"], //取得当前节点的编号
+				dataFilter: filter //数据预处理操作，也是下面提供的一个方法
+			},
+			view: {//设置视图相关
+				nameIsHTML: true,//是否支持解析html格式的值
+			},
+			callback: {  //为加载到的节点绑定一个单击函数
+				onClick: zTreeOnClick
+			}
+		};
+		//根据不同情况组装不同的url的参数
+		//每个节点都有唯一的编号  treeId
+		//treeNode表示 触发该函数的节点本身
+		function getAsyncUrl(treeId, treeNode) {
+			var url  = "/contract/community"; //默认的url地址
+			//当第一次进入页面，还没有生成任何节点的时候  treeNode为undefined
+			console.log(treeNode);
+			if(undefined != treeNode){
+				if(treeNode.level == 0){  //treeNode.level==0表示 该节点是第一层节点(小区节点)
+			         url  = "/contract/build"; //默认的url地址
+				}else if(treeNode.level == 1){ //treeNode.level==1 表示 该节点是第一二层节点（楼层节点）
+					 url  = "/contract/floor";
+				}else if(treeNode.level == 2){
+					 url  = "/contract/room";//加载当前楼层的 房间的路径
+				}
+			} 
+			return url;
+		}
+		/*预处理函数（第一次进入页面的时候parentNoode为空）
+		 *treeId : 当前节点id
+		 *currentNode : 就是当前节点(触发事件的节点)，之所以叫做currentNode 是相对于他的子节点来说
+		 *childNodes : 当前节点的子节点
+		 */
+		function filter(treeId, currentNode, childNodes) {
+			console.log("父节点："+currentNode,"子节点"+childNodes);
+			if (!childNodes) return null;//如果当前节点的子节点为空则不做任何操作
+			//如果是楼栋currentNode就是undefined,那么让楼栋可以展开,所有添加一个 isParent 属性为true
+			//指定的是当前节点是第一层或者第二层的时候会进入该判断
+			//这个判断是知道项目中一定有三层节点出现，那么前面的两层的子节点可定要可以展开
+			if(undefined == currentNode || currentNode.level ==0|| currentNode.level ==1){
+				 for (var i=0;i<childNodes.length;i++) {
+					//js的设置语法 让子节点显示为（+）
+					childNodes[i].isParent = true;
+				} 
+			}
+			//currentNode.level == 1 ,此时当前节点就是第三层（level==2）,这个层表示房间
+			//currentNode.level就是当前节点(触发事件的节点)的level，之所以叫做currentNode 是相对于他的子节点来说
+			if(undefined != currentNode && currentNode.level ==2){
+				for (var i=0, l=childNodes.length; i<l; i++) {
+					var room = childNodes[i];
+					if(room.statusTenant == 0){  //取得房间的状态（0表示没有出租，1表示出租  3  已经出售了）
+						room.name = "<span style='color:green;'>"+room.name+"(未出租)</span>";
+						//room.name += "(未出租)";
+					}else if(room.statusTenant == 1){
+						room.name="<span style='color:red;'>"+room.name+"(已出租)</span>";
+					}else  if(room.statusTenant==3){
+						room.name="<span style='color:black;'>"+room.name+"(已出售)</span>";
+					}
+				} 
+			}
+			return childNodes;
+		}
+		//监听节点单击回调函数
+		function zTreeOnClick(event, treeId, treeNode) {
+		    console.log( treeNode);
+		    //只有点击房间才有意义,需要处理,房间的登记 level = 3;
+		    if(treeNode.level == 3){
+		    	//只有状态等于0说明为出租,可以使用
+		    	if(treeNode.statusTenant==0){
+		    		//未出租:弹出出租合同界面
+		    		//使用layer弹框插件弹出签订合同页面
+		    		layer.open({
+		    		      type: 2,
+		    		      title: '签订合同',
+		    		      maxmin: true,
+		    		      shadeClose: false, //点击遮罩关闭层
+		    		      area : ['90%' , '85%'],
+		    		      //显示的内容,可以直接加载页面:带上房间号和当前节点treeNode的tId属性(以供添加合同完毕以后回来改造房间状态)
+		    		      content: "/tenants/tenant_contract.html?roomId="+treeNode.id+"&tId="+treeNode.tId
+		    		    });
+		    	}else{   
+		    		//已出租 : 显示合同
+		    		 $("#constract_img").attr("src","/img/constract.jpg");
+		    	}
+		    }
+		};
+		//用户签订合同页面成功以后回调的函数
+		//tId : 签订合同房间对应 zTree的节点id
+		function changeRoomStatus(tId){
+			//获取整个节点树对象
+			var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+			//获取 zTree 指定 tId的节点
+			var node = treeObj.getNodeByTId(tId+"");
+			console.log(node);
+			/* Object { id: 3, name: "<span style='color:green;'>101(未出租)</span>", 
+			statustenant: 0, level: 2, tId: "treeDemo_10", parentTId: "treeDemo_5", 
+			open: false, zAsync: true, isFirstNode: true, isLastNode: false, … } */
+			//修改内容 未出租/已出租  ,节点颜色改变,使用正则表达式
+			node.name = node.name.replace(/未/,"已");  
+			node.name = node.name.replace(/green/,"red");
+			//修改statustenant出租状态
+			node.statusTenant = 1;
+			//重新刷新zTree节点
+			treeObj.updateNode(node);
+			//
+		}
+		//-->
+	</script>
+</head>
+<body>
+<div class="content_wrap">
+	<div class="zTreeDemoBackground left">
+		<ul id="treeDemo" class="ztree"></ul>
+	</div>
+	<div id="constract_info" class="right">
+		<ul id="constract_info" class="info">
+		</ul>
+		 <img alt="" id="constract_img" src="">
+	</div>
+</div>
+</body>
+</HTML>

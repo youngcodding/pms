@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>H+ 后台主题UI框架 - 基本表单</title>
+<meta name="keywords" content="H+后台主题,后台bootstrap框架,会员中心主题,后台HTML,响应式后台">
+<meta name="description"
+	content="H+是一个完全响应式，基于Bootstrap3最新版本开发的扁平化主题，她采用了主流的左右两栏式布局，使用了Html5+CSS3等现代技术">
+<link rel="shortcut icon" href="favicon.ico">
+<link href="/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+<link href="/css/plugins/iCheck/custom.css" rel="stylesheet">
+<!-- 全局js -->
+<script src="/js/jquery.min.js?v=2.1.4"></script>
+<script src="/js/bootstrap.min.js?v=3.3.6"></script>
+<!-- 自定义js -->
+<!-- iCheck -->
+<script src="/js/plugins/iCheck/icheck.min.js"></script>
+<!-- 引入日历插件js文件 -->
+<script src="/js/plugins/layer/laydate/laydate.js"></script>
+<!-- 引入 Jquery.validate.js 表单验证框架 -->
+<script src="/js/jquery.validate.min.js"></script>
+<script src="/js/messages_zh.min.js"></script>
+<!-- 引入弹框插件 layer  -->
+<script src="/js/plugins/layer/layer.min.js"></script>
+<script src="/js/user/add_user.js"></script>
+<style type="text/css">
+.msgErrorStyle {
+	background: red;
+	font-size: 20px;
+}
+</style>
+<script type="text/javascript">
+	$(function() {
+		laydate({
+			elem : '#regtime', //目标元素。由于laydate.js封装了一个轻量级的选择器引擎，因此elem还允许你传入class、tag但必须按照这种方式 '#id .class'
+			event : 'focus' //响应事件。如果没有传入event，则按照默认的click
+		});
+	})
+	</script>
+</head>
+<body class="gray-bg">
+	<div class="wrapper wrapper-content animated fadeInRight">
+		<div class="row">
+			<div class="col-sm-8">
+				<div class="ibox float-e-margins">
+					<div class="ibox-title">
+						<h5>添加用户</h5>
+						<div class="ibox-tools">
+							<a class="collapse-link"> <i class="fa fa-chevron-up"></i>
+							</a> <a class="dropdown-toggle" data-toggle="dropdown"
+								href="form_basic.html#"> <i class="fa fa-wrench"></i>
+							</a>
+							<ul class="dropdown-menu dropdown-user">
+								<li><a href="form_basic.html#">选项1</a></li>
+								<li><a href="form_basic.html#">选项2</a></li>
+							</ul>
+							<a class="close-link"> <i class="fa fa-times"></i>
+							</a>
+						</div>
+					</div>
+					<div class="ibox-content">
+						<form class="form-horizontal"   method="post" id="regForm">
+									<div class="form-group" id="nameDiv">
+										<!-- 定义表单提示文字 -->
+										<label class="col-md-3 control-label" for="name">用户名：</label>
+										<div class="col-md-5">
+											<!-- 定义表单输入组件 -->
+											<input type="text" id="name" name="name" class="form-control"
+												value="lisi">
+										</div>
+										<!-- 定义表单错误提示显示元素 -->
+										<div class="col-md-4" id="nameMsg"></div>
+									</div>
+									<div class="form-group" id="pwdDiv">
+										<!-- 定义表单提示文字 -->
+										<label class="col-md-3 control-label" for="pwd">密&nbsp;&nbsp;&nbsp;码：</label>
+										<div class="col-md-5">
+											<!-- 定义表单输入组件 -->
+											<input type="pwd" id="pwd" name="pwd" class="form-control"
+												value="1234">
+										</div>
+										<!-- 定义表单错误提示显示元素 -->
+										<div class="col-md-4" id="pwdMsg"></div>
+									</div>
+									<div class="form-group" id="nicknameDiv">
+										<!-- 定义表单提示文字 -->
+										<label class="col-md-3 control-label" for="pwd">昵&nbsp;&nbsp;&nbsp;称：</label>
+										<div class="col-md-5">
+											<!-- 定义表单输入组件 -->
+											<input type="text" id="nickname" name="nickname" class="form-control"
+												value="二蛋狗">
+										</div>
+										<!-- 定义表单错误提示显示元素 -->
+										<div class="col-md-4" id="nicknameMsg"></div>
+									</div>
+									<div class="form-group" id="phoneDiv">
+										<!-- 定义表单提示文字 -->
+										<label class="col-md-3 control-label" for="phone">电&nbsp;&nbsp;&nbsp;话：</label>
+										<div class="col-md-5">
+											<!-- 定义表单输入组件 -->
+											<input type="text" id="phone" name="phone" class="form-control"
+												value="1234556567">
+										</div>
+										<!-- 定义表单错误提示显示元素 -->
+										<div class="col-md-4" id="phoneMsg"></div>
+									</div>
+									<div class="form-group" id="qqDiv">
+										<!-- 定义表单提示文字 -->
+										<label class="col-md-3 control-label" for="qq">Q&nbsp;&nbsp;&nbsp;&nbsp;Q：</label>
+										<div class="col-md-5">
+											<!-- 定义表单输入组件 -->
+											<input type="text" id="qq" name="qq" class="form-control"
+												value="110000">
+										</div>
+										<!-- 定义表单错误提示显示元素 -->
+										<div class="col-md-4" id="qqMsg"></div>
+									</div>
+										<div class="form-group" id="emailDiv">
+										<!-- 定义表单提示文字 -->
+										<label class="col-md-3 control-label" for="email">邮&nbsp;&nbsp;&nbsp;&nbsp;箱：</label>
+										<div class="col-md-5">
+											<!-- 定义表单输入组件 -->
+											<input type="text" id="email" name="email" class="form-control"
+												value="1234@qq.com">
+										</div>
+										<!-- 定义表单错误提示显示元素 -->
+										<div class="col-md-4" id="emailMsg"></div>
+									</div>
+									<div class="form-group"  id="regtimeDiv">
+									 	<label class="col-md-3 control-label">日&nbsp;&nbsp;&nbsp;期：</label>
+											<div class="col-md-5">
+												<input id="regtime" name="regtime"
+												 class="laydate-icon form-control layer-date" value="2018-10-10">
+											</div>
+										  <!-- 定义表单错误提示显示元素 -->
+										  <div class="col-md-4" id="regtimeMsg"></div>
+									</div>
+									<div class="form-group">
+										<div class="col-md-5 col-md-offset-3">
+											<button type="submit"  id="submitBtn" class="btn btn-primary">增加</button>
+											<button type="reset" class="btn btn-warning">重置</button>
+										</div>
+									</div>
+						    </form>
+					  </div>
+				 </div>
+			 </div>
+		 </div>
+	 </div>
+ </body>
+</html>
